@@ -3,6 +3,7 @@ import { useParams } from 'react-router'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import { TripMap } from '@/components/TripMap'
 import { TripPageError } from '@/components/TripPageError'
 import { TripPageSkeleton } from '@/components/TripPageSkeleton'
 import { TripSummary } from '@/components/TripSummary'
@@ -25,7 +26,8 @@ export default function TripPage() {
     content = (
       <Stack spacing={3}>
         <TripSummary trip={query.data} />
-        {/* Map (F6) and daily log sheets (F7) render here. */}
+        <TripMap trip={query.data} />
+        {/* Daily log sheets (F7) render here. */}
       </Stack>
     )
   }

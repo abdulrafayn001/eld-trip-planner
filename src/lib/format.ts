@@ -27,3 +27,12 @@ export function formatDuration(totalHours: number): string {
 export function formatLogDays(count: number): string {
   return `${INTEGER_FORMATTER.format(count)} ${count === 1 ? 'day' : 'days'}`
 }
+
+const TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  minute: '2-digit',
+})
+
+export function formatTime(iso: string): string {
+  return TIME_FORMATTER.format(new Date(iso))
+}
