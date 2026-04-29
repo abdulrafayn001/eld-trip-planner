@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Link as RouterLink } from 'react-router'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -6,6 +6,7 @@ import Card from '@mui/material/Card'
 import CardActionArea from '@mui/material/CardActionArea'
 import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import Skeleton from '@mui/material/Skeleton'
@@ -20,6 +21,7 @@ import {
   CompactStat,
   type CompactStatTone,
 } from '@/components/CompactStat'
+import { InfiniteScrollSentinel } from '@/components/InfiniteScrollSentinel'
 import { useTrips } from '@/hooks/useTrips'
 import { loadLastTripInput } from '@/lib/tripInput'
 import type { TripSummary } from '@/lib/trip'
@@ -38,8 +40,21 @@ interface TripKpi {
 
 export default function TripsPage() {
   const query = useTrips()
-  const stats = useMemo(() => buildStats(query.data), [query.data])
-  const recentTrips = query.data?.slice(0, 4)
+  const trips = useMemo<TripSummary[]>(
+    () => query.data?.pages.flatMap((page) => page.results) ?? [],
+    [query.data],
+  )
+  const totalCount = query.data?.pages[0]?.count
+  const stats = useMemo(
+    () => buildStats(trips, totalCount),
+    [trips, totalCount],
+  )
+
+  const handleLoadMore = useCallback(() => {
+    if (query.hasNextPage && !query.isFetchingNextPage) {
+      void query.fetchNextPage()
+    }
+  }, [query])
 
   return (
     <Container maxWidth="lg" component="main">
@@ -59,7 +74,7 @@ export default function TripsPage() {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Every route you&apos;ve planned, newest first
-                {query.data ? ` · ${query.data.length} total` : ''}.
+                {totalCount !== undefined ? ` · ${totalCount} total` : ''}.
               </Typography>
             </Box>
             <Button
@@ -73,7 +88,7 @@ export default function TripsPage() {
             </Button>
           </Stack>
 
-          {query.isSuccess && query.data.length > 0 && (
+          {query.isSuccess && trips.length > 0 && (
             <Box
               sx={{
                 display: 'grid',
@@ -108,15 +123,28 @@ export default function TripsPage() {
               onRetry={() => void query.refetch()}
             />
           )}
-          {query.isSuccess && query.data.length === 0 && <TripsEmpty />}
-          {query.isSuccess && recentTrips && recentTrips.length > 0 && (
-            <Grid container spacing={1.75}>
-              {recentTrips.map((trip) => (
-                <Grid key={trip.id} size={{ xs: 12, sm: 6 }}>
-                  <TripCard trip={trip} />
-                </Grid>
-              ))}
-            </Grid>
+          {query.isSuccess && trips.length === 0 && <TripsEmpty />}
+          {query.isSuccess && trips.length > 0 && (
+            <>
+              <Grid container spacing={1.75}>
+                {trips.map((trip) => (
+                  <Grid key={trip.id} size={{ xs: 12, sm: 6 }}>
+                    <TripCard trip={trip} />
+                  </Grid>
+                ))}
+              </Grid>
+              {query.hasNextPage && (
+                <InfiniteScrollSentinel
+                  onIntersect={handleLoadMore}
+                  disabled={query.isFetchingNextPage}
+                />
+              )}
+              {query.isFetchingNextPage && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              )}
+            </>
           )}
         </Stack>
       </Box>
@@ -124,28 +152,32 @@ export default function TripsPage() {
   )
 }
 
-function buildStats(trips: TripSummary[] | undefined): TripKpi[] {
-  const totalMiles = trips?.reduce((acc, t) => acc + t.total_distance_mi, 0) ?? 0
-  const restartCount = trips?.filter((t) => t.requires_34h_restart).length ?? 0
-  const compliance = !trips || trips.length === 0
+function buildStats(trips: TripSummary[], totalCount: number | undefined): TripKpi[] {
+  // Aggregates run over loaded pages only; the total trip count comes from
+  // the paginated response so it stays accurate even before the user has
+  // scrolled to the end.
+  const totalMiles = trips.reduce((acc, t) => acc + t.total_distance_mi, 0)
+  const restartCount = trips.filter((t) => t.requires_34h_restart).length
+  const compliance = trips.length === 0
     ? '—'
     : restartCount === 0
       ? '100%'
       : `${Math.round(((trips.length - restartCount) / trips.length) * 100)}%`
   const cycleUsed = loadLastTripInput()?.cycle_used_hrs ?? 0
   const cycleRemaining = Math.max(0, 70 - cycleUsed)
+  const tripsTotal = totalCount ?? trips.length
   return [
     {
       label: 'Total miles',
       value: Math.round(totalMiles).toLocaleString(),
       unit: 'mi',
-      sub: trips ? `Across ${trips.length} ${trips.length === 1 ? 'trip' : 'trips'}` : undefined,
+      sub: `Across ${trips.length} loaded ${trips.length === 1 ? 'trip' : 'trips'}`,
       icon: RouteRounded,
       tone: 'primary',
     },
     {
       label: 'Trips planned',
-      value: trips?.length ?? 0,
+      value: tripsTotal,
       sub: restartCount > 0 ? `${restartCount} need 34h restart` : 'Newest first',
       icon: CalendarTodayRounded,
       tone: 'primary',

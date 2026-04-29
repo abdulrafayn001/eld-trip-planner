@@ -1,19 +1,39 @@
 /**
- * `useTrips` — query hook for `GET /api/trips/`.
+ * `useTrips` — paginated query hook for `GET /api/trips/`.
  *
- * Returns the lightweight summary list for the authenticated user. Create
- * mutations invalidate `tripsQueryKey` so the list refreshes after a new
+ * Backed by `useInfiniteQuery` so the trips list page can fetch the next
+ * page as the user scrolls. The query key stays a stable `['trips']` so
+ * `useCreateTrip` can invalidate the whole infinite cache after a new
  * trip is planned.
  */
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { apiFetch, type ApiError } from '@/lib/api'
+import {
+  offsetFromNextUrl,
+  type PaginatedResponse,
+} from '@/lib/pagination'
 import type { TripSummary } from '@/lib/trip'
 
 export const tripsQueryKey = ['trips'] as const
 
+const PAGE_LIMIT = 10
+
+type TripsPage = PaginatedResponse<TripSummary>
+
 export function useTrips() {
-  return useQuery<TripSummary[], ApiError>({
+  return useInfiniteQuery<
+    TripsPage,
+    ApiError,
+    InfiniteData<TripsPage, number>,
+    typeof tripsQueryKey,
+    number
+  >({
     queryKey: tripsQueryKey,
-    queryFn: () => apiFetch<TripSummary[]>('/api/trips/'),
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      apiFetch<TripsPage>(
+        `/api/trips/?limit=${PAGE_LIMIT}&offset=${pageParam}`,
+      ),
+    getNextPageParam: (lastPage) => offsetFromNextUrl(lastPage.next),
   })
 }
