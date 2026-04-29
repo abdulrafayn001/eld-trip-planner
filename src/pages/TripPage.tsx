@@ -72,6 +72,22 @@ export default function TripPage() {
     window.print()
   }
 
+  const handleExportPdf = () => {
+    if (!query.data) return
+    const filename = buildExportFilename(query.data)
+    const previousTitle = document.title
+    document.title = filename
+    const restore = () => {
+      document.title = previousTitle
+      window.removeEventListener('afterprint', restore)
+    }
+    window.addEventListener('afterprint', restore)
+    window.print()
+    // Safari doesn't always fire `afterprint`; restore on the next tick
+    // as a fallback so the tab title doesn't stay stuck on the filename.
+    window.setTimeout(restore, 1000)
+  }
+
   let content: ReactNode
   if (query.isPending) {
     content = <TripPageSkeleton />
@@ -151,6 +167,7 @@ export default function TripPage() {
             <Button
               variant="outlined"
               startIcon={<DownloadRounded />}
+              onClick={handleExportPdf}
               disabled={!hasLogs}
               sx={{ whiteSpace: 'nowrap' }}
             >
@@ -398,4 +415,14 @@ function formatLogDate(value: string): string {
 function shortTripId(id: string): string {
   const tail = id.replace(/[^A-Za-z0-9]/g, '').slice(-4).toUpperCase()
   return `TR-${tail.padStart(4, '0')}`
+}
+
+// Browsers default the save-as-PDF filename from `document.title`.
+// We swap the title to this string for the duration of the print dialog
+// so users get a tidy filename instead of the generic tab title.
+function buildExportFilename(trip: Trip): string {
+  const id = shortTripId(trip.id)
+  const range = formatDateRange(trip.logs)
+  const slug = range ? range.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'logs'
+  return `ELD-${id}-${slug}.pdf`
 }
