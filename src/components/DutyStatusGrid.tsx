@@ -20,10 +20,20 @@ interface DutyStatusGridProps {
   segments: DailyLogSegment[]
   /** Optional override; falls back to summing `segments` per status. */
   totals?: Record<DutyStatus, number>
-  /** Accessible label for the SVG. */
+  /** Accessible label for the SVG (standalone use only). */
   ariaLabel?: string
   /** Inline style passthrough — the parent sheet controls sizing. */
   style?: React.CSSProperties
+  /**
+   * SVG positioning attributes — set when nesting this grid inside another
+   * `<svg>` element (e.g., from `<DailyLogSheet>`). When provided, the
+   * outer `<svg>` uses the SVG `x`/`y`/`width`/`height` attributes
+   * instead of the responsive CSS sizing used standalone.
+   */
+  x?: number
+  y?: number
+  width?: number
+  height?: number
 }
 
 // ---------------------------------------------------------------------------
@@ -51,8 +61,20 @@ const GRID_WIDTH = HOURS * HOUR_WIDTH
 const GRID_HEIGHT = ROWS.length * ROW_HEIGHT
 const SVG_WIDTH = LEFT_LABEL_WIDTH + GRID_WIDTH + TOTAL_LABEL_WIDTH + PAD * 2
 const SVG_HEIGHT = HOUR_LABEL_HEIGHT + GRID_HEIGHT + PAD * 2
+
+/** Outer viewBox dimensions — useful when nesting inside a parent SVG. */
+export const DUTY_STATUS_GRID_VIEW_WIDTH = SVG_WIDTH
+export const DUTY_STATUS_GRID_VIEW_HEIGHT = SVG_HEIGHT
 const GRID_LEFT = LEFT_LABEL_WIDTH + PAD
 const GRID_TOP = HOUR_LABEL_HEIGHT + PAD
+/**
+ * Inner-viewBox X of the grid's hour-0 column and the width of one
+ * hour column. Exported so consumers nesting the grid inside a larger
+ * sheet (e.g. <DailyLogSheet>) can map a duty-event hour back to the
+ * exact sheet x without hand-mirroring constants and risking drift.
+ */
+export const DUTY_STATUS_GRID_LEFT = GRID_LEFT
+export const DUTY_STATUS_GRID_HOUR_WIDTH = HOUR_WIDTH
 
 const INK = '#000'
 const PAPER = '#fff'
@@ -237,6 +259,10 @@ export function DutyStatusGrid({
   totals,
   ariaLabel = 'Driver duty status grid for one calendar day',
   style,
+  x,
+  y,
+  width,
+  height,
 }: DutyStatusGridProps) {
   const polylinePoints = useMemo(() => buildPolylinePoints(segments), [segments])
   const resolvedTotals = useMemo<Record<DutyStatus, number>>(
@@ -244,12 +270,18 @@ export function DutyStatusGrid({
     [totals, segments],
   )
 
+  const isNested = x !== undefined || y !== undefined || width !== undefined || height !== undefined
+
   return (
     <svg
       viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-      role="img"
-      aria-label={ariaLabel}
-      style={{ width: '100%', height: 'auto', display: 'block', ...style }}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      role={isNested ? undefined : 'img'}
+      aria-label={isNested ? undefined : ariaLabel}
+      style={isNested ? undefined : { width: '100%', height: 'auto', display: 'block', ...style }}
     >
       {HOUR_LABELS_LAYER}
       {ROW_LABELS_LAYER}
