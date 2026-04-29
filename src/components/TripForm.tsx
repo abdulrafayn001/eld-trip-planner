@@ -13,6 +13,7 @@ import LocationOnRounded from '@mui/icons-material/LocationOnRounded'
 import { CycleGaugeField } from '@/components/CycleGaugeField'
 import { LocationAutocomplete } from '@/components/LocationAutocomplete'
 import {
+  EMPTY_TRIP_INPUT,
   SAMPLE_TRIP_INPUT,
   tripInputSchema,
   type TripFormValues,
@@ -112,7 +113,7 @@ export function TripForm({
   })
 
   const handleResetClick = () => {
-    reset(defaultValues)
+    reset(EMPTY_TRIP_INPUT)
     onReset?.()
   }
 

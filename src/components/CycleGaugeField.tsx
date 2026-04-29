@@ -4,9 +4,10 @@
  * RHF/Zod-validated value while the driver gets a meaningful readout of
  * "hours used / 70" + remaining-hours footer.
  */
-import { forwardRef, useId } from 'react'
+import { forwardRef, useId, useState } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FONT_MONO } from '@/theme/theme'
@@ -28,9 +29,9 @@ export const CycleGaugeField = forwardRef<HTMLInputElement, CycleGaugeFieldProps
     ref,
   ) {
     const fieldId = useId()
+    const [sliding, setSliding] = useState(false)
     const valid = Number.isFinite(value)
     const safe = valid ? Math.min(Math.max(value, 0), max) : 0
-    const pct = max === 0 ? 0 : (safe / max) * 100
     const remaining = max - safe
     const warn = remaining < 14
     const numericLabel = valid ? safe.toFixed(1) : '0.0'
@@ -116,6 +117,7 @@ export const CycleGaugeField = forwardRef<HTMLInputElement, CycleGaugeFieldProps
                   backgroundColor: 'background.paper',
                   color: 'text.primary',
                   colorScheme: (theme) => theme.palette.mode,
+                  visibility: sliding ? 'hidden' : 'visible',
                   '&:focus': {
                     outline: 'none',
                     borderColor: 'primary.main',
@@ -146,30 +148,52 @@ export const CycleGaugeField = forwardRef<HTMLInputElement, CycleGaugeFieldProps
             </Typography>
           </Stack>
 
-          <Box
-            sx={{
-              height: 8,
-              backgroundColor: 'rgba(30,106,232,0.10)',
-              borderRadius: 1,
-              overflow: 'hidden',
-              position: 'relative',
+          <Slider
+            value={safe}
+            min={0}
+            max={max}
+            step={0.5}
+            disabled={disabled}
+            onChange={(_, next) => {
+              setSliding(true)
+              onChange(typeof next === 'number' ? next : next[0])
             }}
-            aria-hidden
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                inset: 0,
-                right: 'auto',
-                width: `${pct}%`,
+            onChangeCommitted={() => setSliding(false)}
+            onBlur={onBlur}
+            aria-label="Hours already on duty"
+            sx={{
+              py: 1,
+              color: warn ? 'warning.main' : 'primary.main',
+              '& .MuiSlider-rail': {
+                height: 8,
+                backgroundColor: 'rgba(30,106,232,0.10)',
+                opacity: 1,
+                border: 'none',
+              },
+              '& .MuiSlider-track': {
+                height: 8,
+                border: 'none',
                 background: warn
                   ? 'linear-gradient(90deg, #C77B14 0%, #E8A33E 100%)'
                   : 'linear-gradient(90deg, #1E6AE8 0%, #4C8DF5 100%)',
-                borderRadius: 1,
-                transition: 'width 400ms ease',
-              }}
-            />
-          </Box>
+                transition: 'width 200ms ease',
+              },
+              '& .MuiSlider-thumb': {
+                width: 18,
+                height: 18,
+                backgroundColor: 'background.paper',
+                border: '2px solid',
+                borderColor: warn ? 'warning.main' : 'primary.main',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
+                '&:hover, &.Mui-focusVisible': {
+                  boxShadow: `0 0 0 8px ${warn ? 'rgba(199,123,20,0.16)' : 'rgba(30,106,232,0.16)'}`,
+                },
+                '&.Mui-active': {
+                  boxShadow: `0 0 0 12px ${warn ? 'rgba(199,123,20,0.20)' : 'rgba(30,106,232,0.20)'}`,
+                },
+              },
+            }}
+          />
 
           <Stack
             direction="row"
