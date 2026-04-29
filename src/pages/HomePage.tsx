@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Link as RouterLink } from 'react-router'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import Typography from '@mui/material/Typography'
+import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded'
+import { MOBILE_BOTTOM_NAV_HEIGHT } from '@/components/MobileBottomNav'
 import { PlanPreview, PlanPreviewEmpty } from '@/components/PlanPreview'
 import { TripForm } from '@/components/TripForm'
 import { useCreateTrip } from '@/hooks/useCreateTrip'
@@ -16,6 +20,8 @@ import {
   saveLastTripInput,
   type TripInput,
 } from '@/lib/tripInput'
+
+const TRIP_FORM_ID = 'trip-plan-form'
 
 const STEPS = ['Details', 'Review', 'Logs']
 
@@ -47,8 +53,9 @@ export default function HomePage() {
   }
 
   return (
+    <>
     <Container maxWidth="xl" component="main">
-      <Box sx={{ py: { xs: 3, sm: 4 } }}>
+      <Box sx={{ pt: { xs: 3, sm: 4 }, pb: { xs: 12, sm: 4 } }}>
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           sx={{
@@ -117,6 +124,8 @@ export default function HomePage() {
             onReset={handleReset}
             compact
             onUseSample={handleUseSample}
+            formId={TRIP_FORM_ID}
+            inlineActionsDisplay={{ xs: 'none', sm: 'flex' }}
           />
 
           <Box>
@@ -125,5 +134,42 @@ export default function HomePage() {
         </Box>
       </Box>
     </Container>
+    <Box
+      role="region"
+      aria-label="Trip actions"
+      sx={{
+        display: { xs: 'flex', sm: 'none' },
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: `${MOBILE_BOTTOM_NAV_HEIGHT}px`,
+        gap: 1,
+        alignItems: 'center',
+        px: 2,
+        py: 1.25,
+        backgroundColor: 'background.paper',
+        borderTop: 1,
+        borderColor: 'divider',
+        boxShadow: '0 -4px 12px rgba(0,0,0,0.04)',
+        zIndex: (theme) => theme.zIndex.appBar - 1,
+      }}
+    >
+      <Button
+        type="submit"
+        form={TRIP_FORM_ID}
+        variant="contained"
+        size="large"
+        fullWidth
+        disabled={createTrip.isPending}
+        startIcon={
+          createTrip.isPending
+            ? <CircularProgress size={18} color="inherit" />
+            : <AutoAwesomeRounded fontSize="small" />
+        }
+      >
+        {createTrip.isPending ? 'Planning…' : 'Plan trip'}
+      </Button>
+    </Box>
+    </>
   )
 }

@@ -24,6 +24,18 @@ interface TripFormProps {
   compact?: boolean
   /** When set, an inline "Use sample" link populates the form. */
   onUseSample?: (input: TripInput) => void
+  /**
+   * Optional id on the underlying `<form>` element so an external submit
+   * button (e.g. mobile sticky CTA) can target it via the `form` attribute.
+   */
+  formId?: string
+  /**
+   * Responsive override for the inline Reset / Use sample / Plan trip
+   * row. On mobile the page renders a sticky CTA outside the card so the
+   * inline buttons are hidden; the same form id is used so submission
+   * still works via the external button.
+   */
+  inlineActionsDisplay?: { xs?: string; sm?: string; md?: string }
 }
 
 const HEADING_ID = 'trip-form-heading'
@@ -85,6 +97,8 @@ export function TripForm({
   onReset,
   compact = false,
   onUseSample,
+  formId,
+  inlineActionsDisplay,
 }: TripFormProps) {
   const { control, handleSubmit, reset } = useForm<TripInput>({
     resolver: zodResolver(tripInputSchema),
@@ -134,6 +148,7 @@ export function TripForm({
       <CardContent sx={{ p: compact ? 2.5 : 3 }}>
         <Stack
           component="form"
+          id={formId}
           spacing={compact ? 1.75 : 2.5}
           noValidate
           onSubmit={handleSubmit(onSubmit)}
@@ -190,6 +205,7 @@ export function TripForm({
             direction={{ xs: 'column-reverse', sm: 'row' }}
             spacing={1}
             sx={{
+              display: inlineActionsDisplay ?? 'flex',
               alignItems: { xs: 'stretch', sm: 'center' },
               justifyContent: 'space-between',
               pt: compact ? 0.25 : 1,

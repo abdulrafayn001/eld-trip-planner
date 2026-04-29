@@ -154,7 +154,10 @@ export default function TripPage() {
               disabled={!hasLogs}
               sx={{ whiteSpace: 'nowrap' }}
             >
-              Export PDF
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                Export&nbsp;
+              </Box>
+              PDF
             </Button>
             <Button
               variant="contained"
@@ -163,7 +166,10 @@ export default function TripPage() {
               disabled={!hasLogs}
               sx={{ whiteSpace: 'nowrap' }}
             >
-              Print all logs
+              Print
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                &nbsp;all logs
+              </Box>
             </Button>
           </Stack>
         </Stack>
