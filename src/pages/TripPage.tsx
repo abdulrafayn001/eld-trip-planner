@@ -1,8 +1,10 @@
 import { useMemo, type ReactNode } from 'react'
 import { useParams } from 'react-router'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import {
   DailyLogSheet,
   type DailyLogSheetCumulative,
@@ -30,6 +32,10 @@ export default function TripPage() {
     void query.refetch()
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   let content: ReactNode
   if (query.isPending) {
     content = <TripPageSkeleton />
@@ -37,8 +43,19 @@ export default function TripPage() {
     content = <TripPageError message={query.error.message} onRetry={handleRetry} />
   } else {
     const trip = query.data
+    const hasLogs = trip.logs.length > 0
     content = (
       <Stack spacing={3}>
+        <Stack direction="row" sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            variant="outlined"
+            startIcon={<PrintRoundedIcon />}
+            onClick={handlePrint}
+            disabled={!hasLogs}
+          >
+            Print all logs
+          </Button>
+        </Stack>
         <TripSummary trip={trip} />
         <TripMap trip={trip} />
         <Stack spacing={2}>

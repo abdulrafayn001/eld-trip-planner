@@ -12,6 +12,7 @@ import { ThemeModeProvider } from '@/theme/ThemeModeProvider'
 import { queryClient } from '@/lib/queryClient'
 import { router } from '@/routes'
 import './index.css'
+import './styles/print.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

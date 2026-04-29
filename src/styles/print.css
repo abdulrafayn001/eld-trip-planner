@@ -1,0 +1,60 @@
+/*
+ * Print stylesheet for the FMCSA Driver's Daily Log sheets.
+ *
+ * Spec §8.6 calls for a visibility-based hide-everything-then-reveal
+ * recipe, but `visibility: hidden` preserves layout — the AppHeader,
+ * action row, summary card, and ~480 px map all still occupy their
+ * vertical space, leaving the first physical page blank before the
+ * first log sheet appears. We collapse those branches with
+ * `display: none` instead, scoped via `:has(.log-sheet)` so any subtree
+ * that doesn't contain a daily-log card is removed from the print flow.
+ * The log sheets themselves keep their layout, get one page each via
+ * `page-break-after: always`, and shed the MUI Card chrome (shadow,
+ * border, background tint) so the printed output matches the FMCSA
+ * paper form rather than an elevated screen surface.
+ */
+
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 0.4in;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  /* Hide any body-level subtree (e.g., notistack/MUI portals) that
+     doesn't carry a log sheet. */
+  body > *:not(:has(.log-sheet)) {
+    display: none !important;
+  }
+
+  /* Inside a branch that does contain log sheets, hide the non-log
+     siblings (AppHeader, action row, TripSummary, TripMap, …). The
+     `:not(.log-sheet)` clause keeps the sheets themselves visible, and
+     this rule never matches a log-sheet's own descendants because none
+     of them contain another nested log-sheet. */
+  body :has(.log-sheet) > *:not(:has(.log-sheet)):not(.log-sheet) {
+    display: none !important;
+  }
+
+  .log-sheet {
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    margin: 0;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+  }
+
+  .log-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}
