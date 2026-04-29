@@ -1,13 +1,25 @@
 # ELD Trip Planner — Frontend
 
 React 19 + TypeScript SPA for the FMCSA HOS-compliant trip planner.
-Backend lives in a separate repo; see the project spec for the full
-architecture.
+Backend lives in a separate repo (`eld-trip-planner-backend`, Django + DRF);
+see the project spec for the full architecture.
 
 ## Live URLs
 
 - App: _TBD (Vercel)_
 - API: _TBD (Render)_
+- Demo (Loom): _TBD_
+
+## Architecture
+
+```mermaid
+flowchart LR
+  U([Browser]) -- HTTPS --> V[Vercel · React SPA]
+  V -- "fetch /api/*" --> R[Render · Django API]
+  R -- SQL --> P[(Supabase · Postgres)]
+  R -- HTTPS --> N[Nominatim<br/>geocoding]
+  R -- HTTPS --> O[OSRM<br/>routing]
+```
 
 ## Stack
 
@@ -52,5 +64,3 @@ src/
 ├── pages/                # HomePage, TripPage
 └── lib/                  # api client, query client, auth-token storage
 ```
-
-Phases land one feature per commit per the project build plan.
