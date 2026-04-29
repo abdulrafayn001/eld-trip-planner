@@ -89,7 +89,8 @@ export function TripForm({ defaultValues, isPending, onSubmit }: TripFormProps) 
             startIcon={
               isPending ? <CircularProgress size={18} color="inherit" /> : undefined
             }
-            sx={{ alignSelf: 'flex-start' }}
+            // Full-width on phones for thumb-reach, intrinsic on tablet+.
+            sx={{ alignSelf: { xs: 'stretch', sm: 'flex-start' } }}
           >
             {isPending ? 'Planning…' : 'Plan trip'}
           </Button>

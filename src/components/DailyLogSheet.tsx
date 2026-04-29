@@ -250,10 +250,19 @@ export function DailyLogSheet({
     <Card
       variant="outlined"
       className="log-sheet"
-      sx={{ overflow: 'hidden', bgcolor: '#fff', color: INK }}
+      sx={{
+        bgcolor: '#fff',
+        color: INK,
+        // On phones the sheet would shrink to ~320 px wide and become
+        // unreadable; keep a 700 px floor and let the Card scroll
+        // horizontally instead. md+ is wide enough that the SVG fits.
+        overflow: { xs: 'auto hidden', md: 'hidden' },
+        '& > svg': { minWidth: { xs: 700, md: 'auto' } },
+      }}
     >
       <svg
         viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label={`Driver's Daily Log for ${log.date}`}
         style={{ width: '100%', height: 'auto', display: 'block' }}

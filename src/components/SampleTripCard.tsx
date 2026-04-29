@@ -37,6 +37,16 @@ export function SampleTripCard({ onUseSample, disabled }: SampleTripCardProps) {
             startIcon={<AutoFixHigh />}
             disabled={disabled}
             onClick={() => onUseSample(SAMPLE_TRIP_INPUT)}
+            sx={{
+              // Explicit, higher-contrast focus ring for keyboard users —
+              // MUI's default focus-visible style is subtle on outlined
+              // buttons, especially against the off-white card background.
+              '&:focus-visible': {
+                outline: '2px solid',
+                outlineColor: 'primary.main',
+                outlineOffset: 2,
+              },
+            }}
           >
             Use sample
           </Button>

@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import {
   DailyLogSheet,
@@ -46,7 +47,17 @@ export default function TripPage() {
     const hasLogs = trip.logs.length > 0
     content = (
       <Stack spacing={3}>
-        <Stack direction="row" sx={{ justifyContent: 'flex-end' }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h4" component="h1">
+            Trip plan
+          </Typography>
           <Button
             variant="outlined"
             startIcon={<PrintRoundedIcon />}

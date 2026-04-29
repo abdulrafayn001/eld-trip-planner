@@ -36,7 +36,9 @@ interface MarkerInfo {
   cumulativeHours: number
 }
 
-const MAP_HEIGHT = 480
+// Map shrinks on phones so the route + log sheets aren't pushed below
+// the fold. Spec §8.7 sets the floor at 320 px on small screens.
+const MAP_HEIGHT = { xs: 320, sm: 380, md: 480 }
 const ROUTE_COLOR = '#1f6feb'
 const FALLBACK_COLOR = '#5f6368'
 const HOUR_MS = 60 * 60 * 1000
