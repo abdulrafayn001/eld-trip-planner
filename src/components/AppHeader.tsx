@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import Brightness4 from '@mui/icons-material/Brightness4'
 import Brightness7 from '@mui/icons-material/Brightness7'
 import LocalShipping from '@mui/icons-material/LocalShipping'
@@ -46,6 +47,17 @@ export function AppHeader() {
           >
             <LocalShipping sx={{ fontSize: 20 }} />
           </Box>
+          <Typography
+            component="span"
+            sx={{
+              fontSize: { xs: 16, sm: 17 },
+              fontWeight: 700,
+              letterSpacing: '-0.01em',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            ELD Trip Planner
+          </Typography>
         </Stack>
 
         <Box sx={{ flexGrow: 1 }} />
