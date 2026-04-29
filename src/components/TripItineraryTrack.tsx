@@ -21,10 +21,9 @@ import OutlinedFlag from '@mui/icons-material/OutlinedFlag'
 import Place from '@mui/icons-material/Place'
 import Restore from '@mui/icons-material/Restore'
 import { compactLocation, formatTime } from '@/lib/format'
+import { paletteFor, type StopPaletteEntry } from '@/lib/stopPalette'
 import type { TripEvent } from '@/lib/trip'
 import { FONT_MONO } from '@/theme/theme'
-
-type StopTone = 'major' | 'amber' | 'primary' | 'neutral'
 
 interface Stop {
   key: string
@@ -32,7 +31,7 @@ interface Stop {
   name: string
   time: string
   date?: string
-  tone: StopTone
+  palette: StopPaletteEntry
 }
 
 const ICON_BY_ACTIVITY: Record<string, ComponentType<SvgIconProps>> = {
@@ -46,13 +45,6 @@ const ICON_BY_ACTIVITY: Record<string, ComponentType<SvgIconProps>> = {
   '34-hr restart': Restore,
 }
 
-const TONE_COLORS: Record<StopTone, { bg: string; color: string; border: string }> = {
-  major: { bg: 'text.primary', color: 'background.paper', border: 'text.primary' },
-  amber: { bg: 'secondary.main', color: '#fff', border: 'secondary.main' },
-  primary: { bg: 'primary.main', color: '#fff', border: 'primary.main' },
-  neutral: { bg: 'background.paper', color: 'text.secondary', border: 'divider' },
-}
-
 const NON_DRIVING_ACTIVITIES = new Set([
   'Pre-trip inspection',
   'Post-trip inspection',
@@ -64,16 +56,9 @@ const NON_DRIVING_ACTIVITIES = new Set([
   '34-hr restart',
 ])
 
-function toneFor(activity: string): StopTone {
-  if (activity === 'Pickup') return 'amber'
-  if (activity === 'Drop-off') return 'primary'
-  if (activity === 'Pre-trip inspection') return 'major'
-  return 'neutral'
-}
-
 function pickHorizontal(events: TripEvent[]): Stop[] {
   const out: Stop[] = []
-  const addFirstByActivity = (activity: string, tone: StopTone) => {
+  const addFirstByActivity = (activity: string) => {
     const e = events.find((x) => x.activity === activity)
     if (!e) return
     out.push({
@@ -81,7 +66,7 @@ function pickHorizontal(events: TripEvent[]): Stop[] {
       icon: ICON_BY_ACTIVITY[activity] ?? Place,
       name: `${activity}${e.location_label ? ` · ${compactLocation(e.location_label)}` : ''}`,
       time: formatTime(e.start_time),
-      tone,
+      palette: paletteFor(activity),
     })
   }
 
@@ -92,7 +77,7 @@ function pickHorizontal(events: TripEvent[]): Stop[] {
       icon: OutlinedFlag,
       name: compactLocation(origin.location_label) || 'Origin',
       time: formatTime(origin.start_time),
-      tone: 'major',
+      palette: paletteFor('Pre-trip inspection'),
     })
   }
 
@@ -107,12 +92,12 @@ function pickHorizontal(events: TripEvent[]): Stop[] {
       icon: ICON_BY_ACTIVITY[e.activity] ?? Place,
       name: `${e.activity}${e.location_label ? ` · ${compactLocation(e.location_label)}` : ''}`,
       time: formatTime(e.start_time),
-      tone: 'neutral',
+      palette: paletteFor(e.activity),
     })
   }
 
-  addFirstByActivity('Pickup', 'amber')
-  addFirstByActivity('Drop-off', 'primary')
+  addFirstByActivity('Pickup')
+  addFirstByActivity('Drop-off')
 
   return out
 }
@@ -126,7 +111,7 @@ function pickVertical(events: TripEvent[]): Stop[] {
       name: `${e.activity}${e.location_label ? ` · ${compactLocation(e.location_label)}` : ''}`,
       time: formatTime(e.start_time),
       date: dateOf(e.start_time),
-      tone: toneFor(e.activity),
+      palette: paletteFor(e.activity),
     }))
 }
 
@@ -196,7 +181,6 @@ function HorizontalItinerary({ stops }: { stops: Stop[] }) {
       >
         {stops.map((stop) => {
           const Icon = stop.icon
-          const tone = TONE_COLORS[stop.tone]
           return (
             <Box
               key={stop.key}
@@ -216,10 +200,10 @@ function HorizontalItinerary({ stops }: { stops: Stop[] }) {
                   width: 44,
                   height: 44,
                   borderRadius: '50%',
-                  backgroundColor: tone.bg,
-                  color: tone.color,
+                  backgroundColor: stop.palette.fill,
+                  color: stop.palette.on,
                   border: '2px solid',
-                  borderColor: tone.border,
+                  borderColor: stop.palette.border,
                   display: 'grid',
                   placeItems: 'center',
                   position: 'relative',
@@ -278,7 +262,6 @@ function VerticalItinerary({ stops }: { stops: Stop[] }) {
     <Box sx={{ px: 1, py: 0.75 }}>
       {stops.map((stop, i) => {
         const Icon = stop.icon
-        const tone = TONE_COLORS[stop.tone]
         const last = i === stops.length - 1
         return (
           <Box
@@ -345,10 +328,10 @@ function VerticalItinerary({ stops }: { stops: Stop[] }) {
                 width: 24,
                 height: 24,
                 borderRadius: '50%',
-                backgroundColor: tone.bg,
-                color: tone.color,
+                backgroundColor: stop.palette.fill,
+                color: stop.palette.on,
                 border: '2px solid',
-                borderColor: tone.border,
+                borderColor: stop.palette.border,
                 display: 'grid',
                 placeItems: 'center',
                 position: 'relative',

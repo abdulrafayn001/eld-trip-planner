@@ -23,6 +23,7 @@ import Restore from '@mui/icons-material/Restore'
 import { createMarkerIcon } from '@/components/MarkerIcon'
 import { TripItineraryTrack } from '@/components/TripItineraryTrack'
 import { formatDuration, formatTime } from '@/lib/format'
+import { paletteFor } from '@/lib/stopPalette'
 import type { Trip, TripEvent } from '@/lib/trip'
 
 interface TripMapProps {
@@ -53,16 +54,17 @@ const FALLBACK_COLOR = '#5f6368'
 const HOUR_MS = 60 * 60 * 1000
 
 // Module-level icon registry — `renderToStaticMarkup` runs eight times at
-// load, never per render.
+// load, never per render. Each activity gets its own hue from the shared
+// stop palette so map markers visually match the itinerary timeline.
 const ACTIVITY_ICONS: Record<string, L.DivIcon> = {
-  'Pre-trip inspection': createMarkerIcon({ Icon: LocalShipping, color: ROUTE_COLOR }),
-  'Post-trip inspection': createMarkerIcon({ Icon: LocalShipping, color: ROUTE_COLOR }),
-  Pickup: createMarkerIcon({ Icon: LocalShipping, color: ROUTE_COLOR }),
-  'Drop-off': createMarkerIcon({ Icon: LocalShipping, color: ROUTE_COLOR }),
-  '30-min break': createMarkerIcon({ Icon: FreeBreakfast, color: ROUTE_COLOR }),
-  Fueling: createMarkerIcon({ Icon: LocalGasStation, color: ROUTE_COLOR }),
-  '10-hr daily reset': createMarkerIcon({ Icon: Hotel, color: ROUTE_COLOR }),
-  '34-hr restart': createMarkerIcon({ Icon: Restore, color: ROUTE_COLOR }),
+  'Pre-trip inspection': createMarkerIcon({ Icon: LocalShipping, color: paletteFor('Pre-trip inspection').fill }),
+  'Post-trip inspection': createMarkerIcon({ Icon: LocalShipping, color: paletteFor('Post-trip inspection').fill }),
+  Pickup: createMarkerIcon({ Icon: LocalShipping, color: paletteFor('Pickup').fill }),
+  'Drop-off': createMarkerIcon({ Icon: LocalShipping, color: paletteFor('Drop-off').fill }),
+  '30-min break': createMarkerIcon({ Icon: FreeBreakfast, color: paletteFor('30-min break').fill }),
+  Fueling: createMarkerIcon({ Icon: LocalGasStation, color: paletteFor('Fueling').fill }),
+  '10-hr daily reset': createMarkerIcon({ Icon: Hotel, color: paletteFor('10-hr daily reset').fill }),
+  '34-hr restart': createMarkerIcon({ Icon: Restore, color: paletteFor('34-hr restart').fill }),
 }
 const DEFAULT_ICON = createMarkerIcon({ Icon: Place, color: FALLBACK_COLOR })
 
