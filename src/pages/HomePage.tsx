@@ -18,6 +18,7 @@ import {
   EMPTY_TRIP_INPUT,
   loadLastTripInput,
   saveLastTripInput,
+  type TripFormValues,
   type TripInput,
 } from '@/lib/tripInput'
 
@@ -27,7 +28,7 @@ const STEPS = ['Details', 'Review', 'Logs']
 
 export default function HomePage() {
   const createTrip = useCreateTrip()
-  const [defaults, setDefaults] = useState<TripInput>(
+  const [defaults, setDefaults] = useState<TripFormValues>(
     () => loadLastTripInput() ?? EMPTY_TRIP_INPUT,
   )
   const [formKey, setFormKey] = useState(0)
@@ -42,7 +43,7 @@ export default function HomePage() {
     })
   }
 
-  const handleUseSample = (input: TripInput) => {
+  const handleUseSample = (input: TripFormValues) => {
     setDefaults(input)
     setFormKey((k) => k + 1)
     setCreatedId(null)

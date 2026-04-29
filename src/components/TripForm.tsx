@@ -7,23 +7,28 @@ import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded'
 import LocationOnRounded from '@mui/icons-material/LocationOnRounded'
 import { CycleGaugeField } from '@/components/CycleGaugeField'
-import { SAMPLE_TRIP_INPUT, tripInputSchema, type TripInput } from '@/lib/tripInput'
+import { LocationAutocomplete } from '@/components/LocationAutocomplete'
+import {
+  SAMPLE_TRIP_INPUT,
+  tripInputSchema,
+  type TripFormValues,
+  type TripInput,
+} from '@/lib/tripInput'
 import { FONT_MONO } from '@/theme/theme'
 
 interface TripFormProps {
-  defaultValues: TripInput
+  defaultValues: TripFormValues
   isPending: boolean
   onSubmit: (data: TripInput) => void
   onReset?: () => void
   /** Tighter padding/gauge so the form fits a 720h split layout. */
   compact?: boolean
   /** When set, an inline "Use sample" link populates the form. */
-  onUseSample?: (input: TripInput) => void
+  onUseSample?: (input: TripFormValues) => void
   /**
    * Optional id on the underlying `<form>` element so an external submit
    * button (e.g. mobile sticky CTA) can target it via the `form` attribute.
@@ -100,7 +105,7 @@ export function TripForm({
   formId,
   inlineActionsDisplay,
 }: TripFormProps) {
-  const { control, handleSubmit, reset } = useForm<TripInput>({
+  const { control, handleSubmit, reset } = useForm<TripFormValues, unknown, TripInput>({
     resolver: zodResolver(tripInputSchema),
     defaultValues,
     mode: 'onBlur',
@@ -131,8 +136,8 @@ export function TripForm({
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
             {compact
-              ? 'Geocoded via OpenStreetMap.'
-              : "Locations are geocoded via OpenStreetMap. We'll match the closest known city."}
+              ? 'Search via OpenStreetMap.'
+              : "Locations are searched against OpenStreetMap. Pick from the dropdown so we can route accurately."}
           </Typography>
         </Box>
         <Chip
@@ -157,7 +162,7 @@ export function TripForm({
             control={control}
             name="current"
             label="Current location"
-            placeholder="Los Angeles, CA"
+            placeholder="Search a city, address, or place"
             disabled={isPending}
             autoFocus
             pin="start"
@@ -168,7 +173,7 @@ export function TripForm({
             control={control}
             name="pickup"
             label="Pickup location"
-            placeholder="Dallas, TX"
+            placeholder="Search a city, address, or place"
             disabled={isPending}
             pin="pickup"
             letter="B"
@@ -178,7 +183,7 @@ export function TripForm({
             control={control}
             name="dropoff"
             label="Drop-off location"
-            placeholder="Atlanta, GA"
+            placeholder="Search a city, address, or place"
             disabled={isPending}
             pin="drop"
             letter="C"
@@ -246,7 +251,7 @@ export function TripForm({
 }
 
 interface LocationFieldProps {
-  control: Control<TripInput>
+  control: Control<TripFormValues>
   name: 'current' | 'pickup' | 'dropoff'
   label: string
   placeholder: string
@@ -273,24 +278,20 @@ function LocationField({
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <TextField
-          {...field}
+        <LocationAutocomplete
+          ref={field.ref}
+          value={field.value}
+          onChange={field.onChange}
+          onBlur={field.onBlur}
           label={label}
           placeholder={placeholder}
-          error={Boolean(fieldState.error)}
-          helperText={fieldState.error?.message ?? (compact ? '' : ' ')}
-          autoComplete="off"
-          autoFocus={autoFocus}
-          required
-          fullWidth
-          size={compact ? 'small' : 'medium'}
+          error={fieldState.error?.message}
           disabled={disabled}
-          slotProps={{
-            input: {
-              startAdornment: <PinAdornment kind={pin} />,
-              endAdornment: <LetterAdornment letter={letter} />,
-            },
-          }}
+          required
+          autoFocus={autoFocus}
+          startAdornment={<PinAdornment kind={pin} />}
+          endAdornment={<LetterAdornment letter={letter} />}
+          compact={compact}
         />
       )}
     />
