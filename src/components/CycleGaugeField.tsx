@@ -113,8 +113,9 @@ export const CycleGaugeField = forwardRef<HTMLInputElement, CycleGaugeFieldProps
                   fontFamily: FONT_MONO,
                   fontSize: 14,
                   fontWeight: 600,
-                  background: 'background.paper',
+                  backgroundColor: 'background.paper',
                   color: 'text.primary',
+                  colorScheme: (theme) => theme.palette.mode,
                   '&:focus': {
                     outline: 'none',
                     borderColor: 'primary.main',
