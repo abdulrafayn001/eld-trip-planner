@@ -7,20 +7,28 @@ import Typography from '@mui/material/Typography'
 import Brightness4 from '@mui/icons-material/Brightness4'
 import Brightness7 from '@mui/icons-material/Brightness7'
 import LocalShipping from '@mui/icons-material/LocalShipping'
+import { useAuth } from '@/auth/useAuth'
+import { AuthMenu } from '@/components/AuthMenu'
 import { useThemeMode } from '@/theme/useThemeMode'
 
 export function AppHeader() {
   const { mode, toggleMode } = useThemeMode()
+  const { isAuthenticated } = useAuth()
   const isDark = mode === 'dark'
 
   return (
-    <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+    <AppBar
+      position="sticky"
+      color="default"
+      elevation={0}
+      sx={{ borderBottom: 1, borderColor: 'divider' }}
+    >
       <Toolbar>
         <LocalShipping sx={{ mr: 1.5, color: 'primary.main' }} aria-hidden />
         <Typography variant="h6" component="h1" sx={{ flexGrow: 1, fontWeight: 500 }}>
           ELD Trip Planner
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             <IconButton
               onClick={toggleMode}
@@ -30,6 +38,7 @@ export function AppHeader() {
               {isDark ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
           </Tooltip>
+          {isAuthenticated && <AuthMenu />}
         </Box>
       </Toolbar>
     </AppBar>

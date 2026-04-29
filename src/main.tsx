@@ -8,6 +8,7 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import 'leaflet/dist/leaflet.css'
+import { AuthProvider } from '@/auth/AuthContext'
 import { ThemeModeProvider } from '@/theme/ThemeModeProvider'
 import { queryClient } from '@/lib/queryClient'
 import { router } from '@/routes'
@@ -17,14 +18,16 @@ import './styles/print.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeModeProvider>
-        <SnackbarProvider
-          maxSnack={3}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <RouterProvider router={router} />
-        </SnackbarProvider>
-      </ThemeModeProvider>
+      <AuthProvider>
+        <ThemeModeProvider>
+          <SnackbarProvider
+            maxSnack={3}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          >
+            <RouterProvider router={router} />
+          </SnackbarProvider>
+        </ThemeModeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

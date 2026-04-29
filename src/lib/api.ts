@@ -6,7 +6,7 @@
  * and throws a typed `ApiError` on non-2xx so React Query can render the
  * error path.
  */
-import { getAuthToken } from '@/lib/auth'
+import { clearSession, getAuthToken } from '@/lib/auth'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
@@ -48,6 +48,9 @@ export async function apiFetch<T = unknown>(
   const parsed: unknown = text ? safeJsonParse(text) : null
 
   if (!response.ok) {
+    // 401 means the token is missing/expired/revoked. Clear the session so
+    // AuthContext re-renders and RequireAuth bounces the user to /login.
+    if (response.status === 401) clearSession()
     throw new ApiError(
       response.status,
       extractErrorMessage(parsed) ?? response.statusText,
