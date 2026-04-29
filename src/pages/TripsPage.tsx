@@ -19,6 +19,7 @@ import AccessTimeRounded from '@mui/icons-material/AccessTimeRounded'
 import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded'
 import CalendarTodayRounded from '@mui/icons-material/CalendarTodayRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
+import LocalShipping from '@mui/icons-material/LocalShipping'
 import RouteRounded from '@mui/icons-material/RouteRounded'
 import {
   CompactStat,
@@ -477,24 +478,189 @@ function TripsSkeleton() {
 
 function TripsEmpty() {
   return (
-    <Card>
-      <CardContent>
-        <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center', py: 4 }}>
-          <Typography variant="h6">No trips yet</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Plan your first route to see it listed here.
-          </Typography>
-          <Button
-            component={RouterLink}
-            to="/"
-            variant="contained"
-            startIcon={<AddRoundedIcon />}
+    <Card
+      sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        border: 1,
+        borderColor: 'divider',
+        boxShadow: 0,
+        background: (theme) =>
+          theme.palette.mode === 'light'
+            ? `radial-gradient(circle at 0% 0%, rgba(30,106,232,0.08), transparent 55%),
+               radial-gradient(circle at 100% 100%, rgba(245,158,11,0.06), transparent 55%),
+               ${theme.palette.background.paper}`
+            : `radial-gradient(circle at 0% 0%, rgba(30,106,232,0.18), transparent 55%),
+               radial-gradient(circle at 100% 100%, rgba(245,158,11,0.10), transparent 55%),
+               ${theme.palette.background.paper}`,
+      }}
+    >
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: (theme) =>
+            theme.palette.mode === 'light'
+              ? 'radial-gradient(rgba(15,42,86,0.08) 1px, transparent 1px)'
+              : 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          maskImage:
+            'radial-gradient(ellipse at center, rgba(0,0,0,0.7), transparent 70%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse at center, rgba(0,0,0,0.7), transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Stack
+        spacing={3}
+        sx={{
+          position: 'relative',
+          alignItems: 'center',
+          textAlign: 'center',
+          py: { xs: 5, sm: 7 },
+          px: { xs: 3, sm: 5 },
+        }}
+      >
+        <RouteIllustration />
+        <Box sx={{ maxWidth: 420 }}>
+          <Typography
+            variant="h5"
+            component="h3"
+            sx={{ fontWeight: 600, letterSpacing: '-0.01em', mb: 1 }}
           >
-            Plan a trip
-          </Button>
-        </Stack>
-      </CardContent>
+            No trips yet
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ lineHeight: 1.6 }}
+          >
+            Plan your first route to see total miles, drive time, mandatory rests,
+            and a daily log breakdown right here.
+          </Typography>
+        </Box>
+        <Button
+          component={RouterLink}
+          to="/plan"
+          variant="contained"
+          size="large"
+          startIcon={<AddRoundedIcon />}
+          sx={{
+            px: 3,
+            background: 'linear-gradient(135deg, #1E6AE8 0%, #134397 100%)',
+            boxShadow: '0 6px 18px rgba(30,106,232,0.32)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #1A5FD1 0%, #0F3675 100%)',
+              boxShadow: '0 8px 22px rgba(30,106,232,0.42)',
+            },
+          }}
+        >
+          Plan a trip
+        </Button>
+        <Typography
+          sx={{
+            fontFamily: FONT_MONO,
+            fontSize: 11,
+            color: 'text.secondary',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}
+        >
+          Tip · Routes save automatically the moment they&apos;re planned
+        </Typography>
+      </Stack>
     </Card>
+  )
+}
+
+function RouteIllustration() {
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: 320,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        py: 1.5,
+      }}
+    >
+      <Waypoint kind="pickup" label="Pickup" />
+      <Box
+        sx={{
+          position: 'relative',
+          flex: 1,
+          mx: 1.5,
+          height: 2,
+          background: (theme) =>
+            `linear-gradient(90deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
+          borderRadius: 1,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 48,
+            height: 48,
+            borderRadius: '14px',
+            background: 'linear-gradient(135deg, #1E6AE8 0%, #134397 100%)',
+            color: '#fff',
+            display: 'grid',
+            placeItems: 'center',
+            boxShadow: '0 10px 24px rgba(30,106,232,0.38)',
+          }}
+        >
+          <LocalShipping sx={{ fontSize: 24 }} />
+        </Box>
+      </Box>
+      <Waypoint kind="drop" label="Drop-off" />
+    </Box>
+  )
+}
+
+function Waypoint({ kind, label }: { kind: 'pickup' | 'drop'; label: string }) {
+  return (
+    <Stack sx={{ alignItems: 'center', gap: 0.75 }}>
+      <Box
+        sx={{
+          width: 18,
+          height: 18,
+          borderRadius: '50%',
+          border: '4px solid',
+          borderColor: 'background.paper',
+          ...(kind === 'pickup'
+            ? {
+                backgroundColor: 'secondary.main',
+                boxShadow: (theme) =>
+                  `0 0 0 2px ${theme.palette.secondary.main}, 0 6px 14px ${theme.palette.secondary.main}55`,
+              }
+            : {
+                backgroundColor: 'primary.main',
+                boxShadow: (theme) =>
+                  `0 0 0 2px ${theme.palette.primary.main}, 0 6px 14px ${theme.palette.primary.main}55`,
+              }),
+        }}
+      />
+      <Typography
+        sx={{
+          fontFamily: FONT_MONO,
+          fontSize: 9,
+          color: 'text.secondary',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          fontWeight: 600,
+        }}
+      >
+        {label}
+      </Typography>
+    </Stack>
   )
 }
 
