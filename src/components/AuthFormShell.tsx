@@ -9,7 +9,6 @@ import { Link as RouterLink, useNavigate } from 'react-router'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Container from '@mui/material/Container'
 import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -53,7 +52,8 @@ export function AuthFormShell({
         justifyContent: 'center',
         position: 'relative',
         py: { xs: 3, sm: 4 },
-        px: 2,
+        px: { xs: 1.5, sm: 2 },
+        overflowX: 'hidden',
         background: (theme) =>
           theme.palette.mode === 'light'
             ? `radial-gradient(circle at 0% 0%, rgba(30,106,232,0.06), transparent 50%),
@@ -75,22 +75,34 @@ export function AuthFormShell({
         },
       }}
     >
-      <Container maxWidth="xs" component="main" sx={{ position: 'relative', zIndex: 1 }}>
+      <Box
+        component="main"
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          width: '100%',
+          maxWidth: { xs: '100%', sm: 420 },
+          minWidth: 0,
+          boxSizing: 'border-box',
+        }}
+      >
         <Card
           component="section"
           aria-labelledby={headingId}
           sx={{
             borderRadius: 3,
             boxShadow: 8,
-            p: { xs: 3, sm: 4 },
+            p: { xs: 2.5, sm: 4 },
+            width: '100%',
           }}
         >
           <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-            <Stack direction="row" sx={{ alignItems: 'center', gap: 1.25, mb: 1.75 }}>
+            <Stack direction="row" sx={{ alignItems: 'center', gap: 1.25, mb: 1.75, minWidth: 0 }}>
               <Box
                 sx={{
                   width: 40,
                   height: 40,
+                  flexShrink: 0,
                   borderRadius: 1.5,
                   background: 'linear-gradient(135deg, #1E6AE8 0%, #134397 100%)',
                   color: '#fff',
@@ -102,7 +114,17 @@ export function AuthFormShell({
               >
                 <LocalShipping sx={{ fontSize: 20 }} />
               </Box>
-              <Typography sx={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 ELD Trip Planner
               </Typography>
             </Stack>
@@ -124,10 +146,13 @@ export function AuthFormShell({
                 '& .MuiToggleButtonGroup-grouped': {
                   border: 0,
                   height: 34,
+                  minWidth: 0,
+                  px: 1,
                   borderRadius: '6px !important',
                   fontSize: 13,
                   fontWeight: 500,
                   color: 'text.secondary',
+                  whiteSpace: 'nowrap',
                   '&.Mui-selected': {
                     backgroundColor: 'background.paper',
                     color: 'text.primary',
@@ -145,11 +170,15 @@ export function AuthFormShell({
               id={headingId}
               variant="h5"
               component="h1"
-              sx={{ mb: 0.5 }}
+              sx={{ mb: 0.5, wordBreak: 'break-word' }}
             >
               {title}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2, wordBreak: 'break-word' }}
+            >
               {subtitle}
             </Typography>
 
@@ -170,7 +199,7 @@ export function AuthFormShell({
             </Typography>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   )
 }

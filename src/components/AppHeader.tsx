@@ -20,7 +20,7 @@ export function AppHeader() {
 
   return (
     <AppBar position="sticky">
-      <Toolbar sx={{ gap: { xs: 1, md: 3 } }}>
+      <Toolbar sx={{ gap: { xs: 0.5, md: 3 }, minWidth: 0 }}>
         <Stack
           direction="row"
           component={isAuthenticated ? RouterLink : 'div'}
@@ -30,12 +30,14 @@ export function AppHeader() {
             gap: 1.5,
             textDecoration: 'none',
             color: 'inherit',
+            minWidth: 0,
           }}
         >
           <Box
             sx={{
               width: 36,
               height: 36,
+              flexShrink: 0,
               borderRadius: '10px',
               background: 'linear-gradient(135deg, #1E6AE8 0%, #134397 100%)',
               color: '#fff',
@@ -54,6 +56,9 @@ export function AppHeader() {
               fontWeight: 700,
               letterSpacing: '-0.01em',
               whiteSpace: 'nowrap',
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             ELD Trip Planner
