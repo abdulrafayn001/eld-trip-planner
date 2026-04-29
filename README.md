@@ -15,6 +15,10 @@ architecture.
 - TypeScript strict mode, path alias `@/*` → `src/*`
 - MUI 9 (`@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers`)
   with Emotion as the styling engine
+- React Router 7 + Notistack (toasts)
+- TanStack Query 5 for server state
+- Auth: DRF token in `localStorage` under `eld:auth-token`,
+  injected by the api client as `Authorization: Token <key>`
 - ESLint flat config
 
 ## Development
@@ -34,20 +38,19 @@ npm run lint
 | Name | Purpose |
 | --- | --- |
 | `VITE_API_BASE_URL` | Backend origin (no trailing slash) |
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon (browser-safe) key |
 
 ## Project layout
 
 ```
 src/
-├── App.tsx               # root component
-├── main.tsx              # ThemeProvider + CssBaseline wiring
+├── App.tsx               # layout: <AppHeader /> + <Outlet />
+├── main.tsx              # provider stack + RouterProvider
+├── routes.tsx            # createBrowserRouter route table
 ├── index.css             # minimal globals (MUI CssBaseline handles reset)
-├── theme/
-│   └── theme.ts          # createTheme — extended in later phases
-├── components/           # feature components (added per phase)
-└── lib/                  # framework glue (api client, query client, …)
+├── theme/                # getTheme + ThemeModeProvider + useThemeMode
+├── components/           # AppHeader (more land per phase)
+├── pages/                # HomePage, TripPage
+└── lib/                  # api client, query client, auth-token storage
 ```
 
 Phases land one feature per commit per the project build plan.
