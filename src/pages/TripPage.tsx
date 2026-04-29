@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { useMemo, useState, type ReactNode } from 'react'
-import { Link as RouterLink, useParams } from 'react-router'
+import { Link as RouterLink, useNavigate, useParams } from 'react-router'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -11,12 +11,14 @@ import Typography from '@mui/material/Typography'
 import type { SvgIconProps } from '@mui/material/SvgIcon'
 import AccessTimeRounded from '@mui/icons-material/AccessTimeRounded'
 import CalendarTodayRounded from '@mui/icons-material/CalendarTodayRounded'
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import DownloadRounded from '@mui/icons-material/DownloadRounded'
 import LocalShippingRounded from '@mui/icons-material/LocalShippingRounded'
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import RouteRounded from '@mui/icons-material/RouteRounded'
 import { CompactLogRow } from '@/components/CompactLogRow'
 import { CompactStat, type CompactStatTone } from '@/components/CompactStat'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import {
   DailyLogSheet,
   type DailyLogSheetCumulative,
@@ -27,6 +29,7 @@ import { TripItineraryTrack } from '@/components/TripItineraryTrack'
 import { TripMap } from '@/components/TripMap'
 import { TripPageError } from '@/components/TripPageError'
 import { TripPageSkeleton } from '@/components/TripPageSkeleton'
+import { useDeleteTrip } from '@/hooks/useDeleteTrip'
 import { useTrip } from '@/hooks/useTrip'
 import { formatDuration } from '@/lib/format'
 import type { DailyLog, Trip } from '@/lib/trip'
@@ -42,8 +45,11 @@ interface TripKpi {
 
 export default function TripPage() {
   const { id = '' } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const query = useTrip(id)
   const [logView, setLogView] = useState<LogView>('modern')
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const deleteMutation = useDeleteTrip()
 
   // Cumulative on-duty hours per log date — within this trip only, since
   // we don't have prior 7/8/5-day history. Walks logs once and folds the
@@ -133,6 +139,15 @@ export default function TripPage() {
             spacing={1}
             sx={{ alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}
           >
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteOutlineRoundedIcon />}
+              onClick={() => setConfirmOpen(true)}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              Delete
+            </Button>
             <Button
               variant="outlined"
               startIcon={<DownloadRounded />}
@@ -289,6 +304,23 @@ export default function TripPage() {
   return (
     <Container maxWidth="lg" component="main">
       <Box sx={{ py: { xs: 3, sm: 4 } }}>{content}</Box>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete this trip?"
+        description="This permanently removes the trip along with its events and daily logs. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        loading={deleteMutation.isPending}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() =>
+          deleteMutation.mutate(id, {
+            onSuccess: () => {
+              setConfirmOpen(false)
+              void navigate('/')
+            },
+          })
+        }
+      />
     </Container>
   )
 }

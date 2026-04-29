@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -9,19 +9,24 @@ import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import AccessTimeRounded from '@mui/icons-material/AccessTimeRounded'
 import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded'
 import CalendarTodayRounded from '@mui/icons-material/CalendarTodayRounded'
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import RouteRounded from '@mui/icons-material/RouteRounded'
 import {
   CompactStat,
   type CompactStatTone,
 } from '@/components/CompactStat'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { InfiniteScrollSentinel } from '@/components/InfiniteScrollSentinel'
+import { useDeleteTrip } from '@/hooks/useDeleteTrip'
 import { useTrips } from '@/hooks/useTrips'
 import { loadLastTripInput } from '@/lib/tripInput'
 import type { TripSummary } from '@/lib/trip'
@@ -206,9 +211,13 @@ function shortTripId(id: string): string {
 }
 
 function TripCard({ trip }: { trip: TripSummary }) {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const deleteMutation = useDeleteTrip()
+
   return (
     <Card
       sx={{
+        position: 'relative',
         height: '100%',
         boxShadow: 1,
         overflow: 'hidden',
@@ -216,6 +225,28 @@ function TripCard({ trip }: { trip: TripSummary }) {
         '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
       }}
     >
+      <Tooltip title="Delete trip">
+        <IconButton
+          aria-label="Delete trip"
+          size="small"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setConfirmOpen(true)
+          }}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            bgcolor: 'background.paper',
+            boxShadow: 1,
+            '&:hover': { bgcolor: 'error.main', color: 'common.white' },
+          }}
+        >
+          <DeleteOutlineRoundedIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <CardActionArea
         component={RouterLink}
         to={`/trip/${trip.id}`}
@@ -226,7 +257,8 @@ function TripCard({ trip }: { trip: TripSummary }) {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            px: 2.25,
+            pl: 2.25,
+            pr: 6,
             py: 1.25,
             backgroundColor: (theme) =>
               theme.palette.mode === 'light' ? '#F8FAFC' : 'rgba(255,255,255,0.03)',
@@ -310,6 +342,20 @@ function TripCard({ trip }: { trip: TripSummary }) {
           <Stat label="Drive" value={`${formatHours(trip.total_duration_hr)} hr`} />
         </Box>
       </CardActionArea>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete this trip?"
+        description="This permanently removes the trip along with its events and daily logs. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        loading={deleteMutation.isPending}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() =>
+          deleteMutation.mutate(trip.id, {
+            onSuccess: () => setConfirmOpen(false),
+          })
+        }
+      />
     </Card>
   )
 }
