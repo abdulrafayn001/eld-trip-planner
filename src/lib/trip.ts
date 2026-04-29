@@ -1,9 +1,9 @@
 /**
- * Response shapes for `GET /api/trips/{id}/` (DRF `TripSerializer`).
+ * Response shapes for `GET /api/trips/` (list, `TripSummarySerializer`)
+ * and `GET /api/trips/{id}/` (detail, `TripSerializer`).
  *
- * Single source of truth for trip-detail TypeScript types — consumed by
- * the query hook, summary card, and (in later phases) the map and log
- * sheet renderers.
+ * Single source of truth for trip TypeScript types — consumed by the
+ * query hooks, summary card, list page, map, and log sheet renderers.
  */
 
 export type DutyStatus = 'OFF' | 'SB' | 'D' | 'ON'
@@ -42,6 +42,17 @@ export interface DailyLog {
 export interface RouteGeometry {
   type: 'LineString'
   coordinates: [number, number][]
+}
+
+export interface TripSummary {
+  id: string
+  current_location: string
+  pickup_location: string
+  dropoff_location: string
+  total_distance_mi: number
+  total_duration_hr: number
+  requires_34h_restart: boolean
+  created_at: string
 }
 
 export interface Trip {

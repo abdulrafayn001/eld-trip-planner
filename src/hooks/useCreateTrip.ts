@@ -5,10 +5,11 @@
  * follow it (success toast + navigation, error toast). The form is a pure
  * presentational concern — it consumes `mutate` and `isPending` only.
  */
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { useSnackbar, type SnackbarKey } from 'notistack'
 import { apiFetch, type ApiError } from '@/lib/api'
+import { tripsQueryKey } from '@/hooks/useTrips'
 import type { TripInput } from '@/lib/tripInput'
 
 interface CreateTripResponse {
@@ -21,6 +22,7 @@ interface CreateTripContext {
 
 export function useCreateTrip() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   return useMutation<CreateTripResponse, ApiError, TripInput, CreateTripContext>({
@@ -42,6 +44,7 @@ export function useCreateTrip() {
       if (context) closeSnackbar(context.pendingToastKey)
     },
     onSuccess: ({ id }) => {
+      void queryClient.invalidateQueries({ queryKey: tripsQueryKey })
       enqueueSnackbar('Trip planned', { variant: 'success' })
       void navigate(`/trip/${id}`)
     },

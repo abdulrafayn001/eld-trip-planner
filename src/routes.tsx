@@ -6,6 +6,7 @@ import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import TripPage from '@/pages/TripPage'
+import TripsPage from '@/pages/TripsPage'
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
         Component: RequireAuth,
         children: [
           { index: true, Component: HomePage },
+          { path: 'trips', Component: TripsPage },
           { path: 'trip/:id', Component: TripPage },
         ],
       },

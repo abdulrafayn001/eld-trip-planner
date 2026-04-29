@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import LogoutRounded from '@mui/icons-material/LogoutRounded'
+import RouteRounded from '@mui/icons-material/RouteRounded'
 import { useAuth } from '@/auth/useAuth'
 
 export function AuthMenu() {
@@ -36,6 +37,11 @@ export function AuthMenu() {
     queryClient.clear()
     signOut()
     void navigate('/login', { replace: true })
+  }
+
+  const handleMyTrips = () => {
+    setAnchorEl(null)
+    void navigate('/trips')
   }
 
   return (
@@ -70,6 +76,12 @@ export function AuthMenu() {
           </Typography>
         </Box>
         <Divider />
+        <MenuItem onClick={handleMyTrips}>
+          <ListItemIcon>
+            <RouteRounded fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>My trips</ListItemText>
+        </MenuItem>
         <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <LogoutRounded fontSize="small" />
