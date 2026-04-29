@@ -414,7 +414,13 @@ function MetaStack({
               fontStyle: fallback ? 'italic' : 'normal',
             }}
           >
-            {fallback ? fallbackText ?? value : value}
+            {fallback ? (
+              <Box component="span" className="screen-only">
+                {fallbackText ?? value}
+              </Box>
+            ) : (
+              value
+            )}
           </Box>
         </Box>
       ))}

@@ -60,4 +60,11 @@
     page-break-after: auto;
     break-after: auto;
   }
+
+  /* Hint text like "— enter on print —" is a screen-only affordance —
+     on the printed/PDF sheet the field should be blank so the driver
+     can fill it in by hand. */
+  .screen-only {
+    display: none !important;
+  }
 }
