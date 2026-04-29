@@ -1,9 +1,10 @@
+import { Link as RouterLink } from 'react-router'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import Brightness4 from '@mui/icons-material/Brightness4'
 import Brightness7 from '@mui/icons-material/Brightness7'
 import LocalShipping from '@mui/icons-material/LocalShipping'
@@ -17,29 +18,65 @@ export function AppHeader() {
   const isDark = mode === 'dark'
 
   return (
-    <AppBar
-      position="sticky"
-      color="default"
-      elevation={0}
-      sx={{ borderBottom: 1, borderColor: 'divider' }}
-    >
-      <Toolbar>
-        <LocalShipping sx={{ mr: 1.5, color: 'primary.main' }} aria-hidden />
-        <Typography variant="h6" component="h1" sx={{ flexGrow: 1, fontWeight: 500 }}>
-          ELD Trip Planner
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <AppBar position="sticky">
+      <Toolbar sx={{ gap: { xs: 1, md: 3 } }}>
+        <Stack
+          direction="row"
+          component={isAuthenticated ? RouterLink : 'div'}
+          {...(isAuthenticated ? { to: '/' } : {})}
+          sx={{
+            alignItems: 'center',
+            gap: 1.5,
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
+        >
+          <Box
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #1E6AE8 0%, #134397 100%)',
+              color: '#fff',
+              display: 'grid',
+              placeItems: 'center',
+              boxShadow: '0 2px 6px rgba(30,106,232,0.35)',
+            }}
+            aria-hidden
+          >
+            <LocalShipping sx={{ fontSize: 20 }} />
+          </Box>
+        </Stack>
+
+        <Box sx={{ flexGrow: 1 }} />
+
+        <Stack direction="row" sx={{ alignItems: 'center', gap: 0.5 }}>
           <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             <IconButton
               onClick={toggleMode}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              color="inherit"
+              size="medium"
+              sx={{ color: 'text.secondary' }}
             >
               {isDark ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
           </Tooltip>
-          {isAuthenticated && <AuthMenu />}
-        </Box>
+          {isAuthenticated && (
+            <>
+              <Box
+                sx={{
+                  width: '1px',
+                  height: 28,
+                  backgroundColor: 'divider',
+                  mx: 0.5,
+                  display: { xs: 'none', sm: 'block' },
+                }}
+                aria-hidden
+              />
+              <AuthMenu />
+            </>
+          )}
+        </Stack>
       </Toolbar>
     </AppBar>
   )

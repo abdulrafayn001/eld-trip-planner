@@ -1,5 +1,24 @@
+:root {
+  --font-sans: 'Inter', 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --status-off: #cfe6fa;
+  --status-sb: #5c7be0;
+  --status-d: #f6b240;
+  --status-on: #e8c99b;
+  --status-line: #0c2a66;
+  --break-fill: #f0efe9;
+}
+
 html,
 body,
 #root {
   min-height: 100svh;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }

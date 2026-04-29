@@ -21,11 +21,20 @@ import LocalShipping from '@mui/icons-material/LocalShipping'
 import Place from '@mui/icons-material/Place'
 import Restore from '@mui/icons-material/Restore'
 import { createMarkerIcon } from '@/components/MarkerIcon'
+import { TripItineraryTrack } from '@/components/TripItineraryTrack'
 import { formatDuration, formatTime } from '@/lib/format'
 import type { Trip, TripEvent } from '@/lib/trip'
 
 interface TripMapProps {
   trip: Trip
+  /**
+   * Layout variant.
+   * - `default`: full Card with map + itinerary key-stops timeline.
+   * - `compact`: bare map filling the parent container; no itinerary, no
+   *   surrounding card chrome. Used by the Plan-preview pane and the
+   *   split Trip-detail view that renders its own itinerary card.
+   */
+  compact?: boolean
 }
 
 interface MarkerInfo {
@@ -65,7 +74,7 @@ function isMarkerEvent(e: TripEvent): boolean {
   return e.duty_status !== 'D' && e.lat !== null && e.lng !== null
 }
 
-export function TripMap({ trip }: TripMapProps) {
+export function TripMap({ trip, compact = false }: TripMapProps) {
   const positions = useMemo<L.LatLngTuple[]>(
     () =>
       trip.route_geometry.coordinates.map<L.LatLngTuple>(([lng, lat]) => [lat, lng]),
@@ -94,35 +103,47 @@ export function TripMap({ trip }: TripMapProps) {
   const [popover, setPopover] = useState<{ anchorEl: HTMLElement; info: MarkerInfo } | null>(null)
   const closePopover = () => setPopover(null)
 
-  return (
-    <Card variant="outlined" sx={{ overflow: 'hidden' }}>
-      <Box sx={{ height: MAP_HEIGHT }}>
-        <MapContainer
-          style={{ height: '100%', width: '100%' }}
-          center={[trip.current_lat, trip.current_lng]}
-          zoom={5}
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {positions.length > 1 ? (
-            <Polyline
-              positions={positions}
-              pathOptions={{ color: ROUTE_COLOR, weight: 4, opacity: 0.85 }}
-            />
-          ) : null}
-          {markers.map((info) => (
-            <TripMarker
-              key={info.event.sequence}
-              info={info}
-              onClick={(anchorEl) => setPopover({ anchorEl, info })}
-            />
-          ))}
-          <FitBoundsOnce positions={positions} />
-        </MapContainer>
+  const mapEl = (
+    <MapContainer
+      style={{ height: '100%', width: '100%' }}
+      center={[trip.current_lat, trip.current_lng]}
+      zoom={5}
+      scrollWheelZoom={false}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {positions.length > 1 ? (
+        <Polyline
+          positions={positions}
+          pathOptions={{ color: ROUTE_COLOR, weight: 4, opacity: 0.85 }}
+        />
+      ) : null}
+      {markers.map((info) => (
+        <TripMarker
+          key={info.event.sequence}
+          info={info}
+          onClick={(anchorEl) => setPopover({ anchorEl, info })}
+        />
+      ))}
+      <FitBoundsOnce positions={positions} />
+    </MapContainer>
+  )
+
+  if (compact) {
+    return (
+      <Box sx={{ height: '100%', width: '100%' }}>
+        {mapEl}
+        <MarkerPopover info={popover?.info ?? null} anchorEl={popover?.anchorEl ?? null} onClose={closePopover} />
       </Box>
+    )
+  }
+
+  return (
+    <Card sx={{ overflow: 'hidden', boxShadow: 2 }}>
+      <Box sx={{ height: MAP_HEIGHT }}>{mapEl}</Box>
+      <TripItineraryTrack events={trip.events} />
       <MarkerPopover info={popover?.info ?? null} anchorEl={popover?.anchorEl ?? null} onClose={closePopover} />
     </Card>
   )

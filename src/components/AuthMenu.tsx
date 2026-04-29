@@ -1,5 +1,5 @@
 /**
- * Header avatar-button + dropdown menu for the signed-in user. On sign
+ * Header user chip + dropdown menu for the signed-in user. On sign
  * out: clear the session, drop the React Query cache (so a different
  * driver who signs in next won't see the previous user's trips), and
  * redirect to /login.
@@ -9,17 +9,18 @@ import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import ButtonBase from '@mui/material/ButtonBase'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import LogoutRounded from '@mui/icons-material/LogoutRounded'
 import RouteRounded from '@mui/icons-material/RouteRounded'
 import { useAuth } from '@/auth/useAuth'
+import { FONT_MONO } from '@/theme/theme'
 
 export function AuthMenu() {
   const { user, signOut } = useAuth()
@@ -41,25 +42,70 @@ export function AuthMenu() {
 
   const handleMyTrips = () => {
     setAnchorEl(null)
-    void navigate('/trips')
+    void navigate('/')
   }
 
   return (
     <>
-      <Tooltip title={`Signed in as ${user.username}`}>
-        <IconButton
-          onClick={(e) => setAnchorEl(e.currentTarget)}
-          aria-label="Open account menu"
-          aria-haspopup="menu"
-          aria-expanded={open}
-          size="small"
-          sx={{ ml: 1 }}
+      <ButtonBase
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        aria-label="Open account menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 1.25,
+          padding: '4px 8px 4px 12px',
+          borderRadius: 999,
+          transition: 'background-color 150ms',
+          whiteSpace: 'nowrap',
+          '&:hover': { backgroundColor: 'action.hover' },
+        }}
+      >
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            lineHeight: 1.1,
+          }}
         >
-          <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}>
-            {initial}
-          </Avatar>
-        </IconButton>
-      </Tooltip>
+          <Typography
+            component="span"
+            sx={{ fontSize: 13, fontWeight: 500, lineHeight: 1.2, color: 'text.primary' }}
+          >
+            {user.username}
+          </Typography>
+          <Typography
+            component="span"
+            sx={{
+              fontFamily: FONT_MONO,
+              fontSize: 10,
+              color: 'text.secondary',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Driver · CDL-A
+          </Typography>
+        </Box>
+        <Avatar
+          sx={{
+            width: 36,
+            height: 36,
+            background: 'linear-gradient(135deg, #E8B45A 0%, #C97A14 100%)',
+            color: '#fff',
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: '0.02em',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+          }}
+        >
+          {initial}
+        </Avatar>
+        <KeyboardArrowDown fontSize="small" sx={{ color: 'text.secondary' }} />
+      </ButtonBase>
       <Menu
         anchorEl={anchorEl}
         open={open}

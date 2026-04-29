@@ -22,8 +22,9 @@ export default function RegisterPage() {
   return (
     <AuthFormShell
       headingId={HEADING_ID}
-      title="Create account"
-      subtitle="Sign up to save your trips and access your daily log sheets."
+      mode="signup"
+      title="Create your driver account"
+      subtitle="Save trips, generate FMCSA-compliant daily logs, and pick up planning where you left off."
       onSubmit={handleSubmit((data) => register.mutate(data))}
       footer={{
         prompt: 'Already have an account?',

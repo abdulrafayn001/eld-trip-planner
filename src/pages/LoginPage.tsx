@@ -22,8 +22,9 @@ export default function LoginPage() {
   return (
     <AuthFormShell
       headingId={HEADING_ID}
-      title="Sign in"
-      subtitle="Sign in to plan trips and view your saved logs."
+      mode="signin"
+      title="Welcome back"
+      subtitle="Pick up your in-progress trip or plan a new one."
       onSubmit={handleSubmit((data) => login.mutate(data))}
       footer={{
         prompt: "Don't have an account?",

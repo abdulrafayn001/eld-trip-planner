@@ -49,7 +49,10 @@
     break-inside: avoid;
     margin: 0;
     box-shadow: none !important;
-    border: none !important;
+    /* Square 1 px page border so the printed sheet matches the FMCSA paper
+       form — the on-screen Card's rounded outlined border is replaced. */
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
     background: #fff !important;
   }
 

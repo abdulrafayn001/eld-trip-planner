@@ -23,8 +23,8 @@ export const router = createBrowserRouter([
       {
         Component: RequireAuth,
         children: [
-          { index: true, Component: HomePage },
-          { path: 'trips', Component: TripsPage },
+          { index: true, Component: TripsPage },
+          { path: 'plan', Component: HomePage },
           { path: 'trip/:id', Component: TripPage },
         ],
       },

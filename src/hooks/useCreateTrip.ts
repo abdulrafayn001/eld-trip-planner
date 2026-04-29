@@ -1,12 +1,12 @@
 /**
  * `useCreateTrip` — mutation for `POST /api/trips/`.
  *
- * Single responsibility: own the network call and the side effects that
- * follow it (success toast + navigation, error toast). The form is a pure
- * presentational concern — it consumes `mutate` and `isPending` only.
+ * Owns the network call and global side effects (loading + success +
+ * error toasts, query-cache invalidation). Navigation is left to the
+ * caller so the Plan page can render an inline preview before letting
+ * the driver continue to the full trip view.
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
 import { useSnackbar, type SnackbarKey } from 'notistack'
 import { apiFetch, type ApiError } from '@/lib/api'
 import { tripsQueryKey } from '@/hooks/useTrips'
@@ -21,7 +21,6 @@ interface CreateTripContext {
 }
 
 export function useCreateTrip() {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
@@ -43,10 +42,9 @@ export function useCreateTrip() {
     onSettled: (_data, _error, _variables, context) => {
       if (context) closeSnackbar(context.pendingToastKey)
     },
-    onSuccess: ({ id }) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tripsQueryKey })
       enqueueSnackbar('Trip planned', { variant: 'success' })
-      void navigate(`/trip/${id}`)
     },
     onError: (error) => {
       enqueueSnackbar(error.message || 'Could not plan trip', { variant: 'error' })

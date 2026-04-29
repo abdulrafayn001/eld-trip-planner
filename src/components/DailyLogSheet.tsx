@@ -30,7 +30,10 @@ import type { DailyLog, DailyLogSegment, DutyStatus } from '@/lib/trip'
 // Sheet geometry
 // ---------------------------------------------------------------------------
 const SHEET_WIDTH = 850
-const SHEET_HEIGHT = 1100
+// Tight to the recap's last text (y ≈ RECAP_TOP + 280) plus a small bottom
+// margin. Keeping any extra would render as visible whitespace below the
+// recap because the SVG scales to its viewBox.
+const SHEET_HEIGHT = 910
 const SIDE_MARGIN = 24
 const CONTENT_WIDTH = SHEET_WIDTH - SIDE_MARGIN * 2
 
@@ -253,13 +256,19 @@ export function DailyLogSheet({
       sx={{
         bgcolor: '#fff',
         color: INK,
-        // On phones the sheet would shrink to ~320 px wide and become
-        // unreadable; keep a 700 px floor and let the Card scroll
-        // horizontally instead. md+ is wide enough that the SVG fits.
-        overflow: { xs: 'auto hidden', md: 'hidden' },
-        '& > svg': { minWidth: { xs: 700, md: 'auto' } },
+        // overflow:hidden so the Card's 12px borderRadius clips the SVG's
+        // square-cornered hairline rect to a rounded shape; the inner
+        // wrapper handles horizontal scroll on narrow viewports without
+        // breaking the corner clip.
+        overflow: 'hidden',
+        '& > .log-sheet-scroll': {
+          overflowX: { xs: 'auto', md: 'hidden' },
+          overflowY: 'hidden',
+        },
+        '& svg': { minWidth: { xs: 700, md: 'auto' }, display: 'block' },
       }}
     >
+      <div className="log-sheet-scroll">
       <svg
         viewBox={`0 0 ${SHEET_WIDTH} ${SHEET_HEIGHT}`}
         preserveAspectRatio="xMidYMid meet"
@@ -267,16 +276,9 @@ export function DailyLogSheet({
         aria-label={`Driver's Daily Log for ${log.date}`}
         style={{ width: '100%', height: 'auto', display: 'block' }}
       >
-        {/* Outer page border (subtle hairline so the SVG reads as a sheet) */}
-        <rect
-          x={0.5}
-          y={0.5}
-          width={SHEET_WIDTH - 1}
-          height={SHEET_HEIGHT - 1}
-          fill="#fff"
-          stroke={INK}
-          strokeWidth={HAIRLINE}
-        />
+        {/* No SVG-level page border — the wrapping Card supplies the
+            visible boundary on screen (rounded, outlined) and the print
+            stylesheet adds a square 1px border for the printed sheet. */}
 
         <HeaderBand log={log} header={header} />
 
@@ -301,6 +303,7 @@ export function DailyLogSheet({
           requires34hRestart={requires34hRestart}
         />
       </svg>
+      </div>
     </Card>
   )
 }
