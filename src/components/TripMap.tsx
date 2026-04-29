@@ -110,7 +110,7 @@ export function TripMap({ trip, compact = false }: TripMapProps) {
       style={{ height: '100%', width: '100%' }}
       center={[trip.current_lat, trip.current_lng]}
       zoom={5}
-      scrollWheelZoom={false}
+      scrollWheelZoom
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
